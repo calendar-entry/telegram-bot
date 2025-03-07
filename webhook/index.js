@@ -17,14 +17,11 @@ module.exports.handler = async (event) => {
   try {
 
     const body = JSON.parse(event.body);
-
     const message = body.message ? body.message : null
 
     if (!message) {
       throw new Error(JSON.stringify({
-        type: "VALIDATION_ERROR",
         message: "[internal] No message in body",
-        body: body
       }));
     }
 
@@ -37,7 +34,7 @@ module.exports.handler = async (event) => {
       await notifyDeniz("new user!")
       await sendTelegramMessage(
         chatId,
-        `Hello! To use me, please <a href="${authUrl.replace(/&/g, '&amp;')}"> connect your Google account. </a>`
+        `Hello! Please <a href="${authUrl.replace(/&/g, '&amp;')}"> connect your Google account</a> to get started.`
       );
 
       return { statusCode: 200, body: "Auth link sent" };
@@ -105,6 +102,10 @@ module.exports.handler = async (event) => {
         return { statusCode: 200, body: "Auth link sent" };
       }
       else {
+        await sendTelegramMessage(
+          chatId,
+          `Oh no- it looks like there's an error in my code. I'll notify Deniz and have her take a look right away.`
+        );
         throw error
       }
     }
