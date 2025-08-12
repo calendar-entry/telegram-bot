@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MessageCircle, Sparkles, Clock, Zap, Shield, ArrowRight, Bot, CheckCircle } from "lucide-react"
+import { Calendar, MessageCircle, Sparkles, Clock, Zap, Image, Shield, ArrowRight, Bot, CheckCircle } from "lucide-react"
 
 export default function LandingPage() {
   return (
@@ -30,13 +30,11 @@ export default function LandingPage() {
           </Badge>
 
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Never miss an event.
-            <br />
-            <span className="text-emerald-500">Just tell your bot.</span>
+            Never miss another event
           </h1>
 
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Transform natural language into calendar events instantly. Our Telegram bot uses advanced AI to understand
+            Transform natural language event descriptions or images into calendar entries instantly. Our Telegram bot uses AI to understand
             your messages and seamlessly add events to your Google Calendar.
           </p>
 
@@ -63,7 +61,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Intelligent calendar management</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Powered by advanced AI and seamlessly integrated with Google Calendar
+              Powered by AI and seamlessly integrated with Google Calendar
             </p>
           </div>
 
@@ -75,8 +73,20 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Natural Language Processing</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Simply type "Meeting with John tomorrow at 3pm" and watch it transform into a perfectly formatted
-                  calendar event.
+                  Simply type "Meeting with John tomorrow at 3pm" and watch it appear on your calendar.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-8 text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Image className="w-6 h-6 text-purple-500" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Image interpretation</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Snap a photo of a handwritten note or flier with event details, and our AI will extract the
+                  information to create a calendar entry.
                 </p>
               </CardContent>
             </Card>
@@ -88,24 +98,12 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Google Calendar Sync</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Direct integration with Google Calendar API ensures your events are instantly synced across all your
+                  Google Calendar API integration ensures your events are instantly synced across all your
                   devices.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-8 text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Zap className="w-6 h-6 text-purple-500" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Instant Response</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Get immediate confirmation when events are added. No waiting, no delays – just instant calendar
-                  updates.
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
@@ -128,7 +126,7 @@ export default function LandingPage() {
               <div className="flex-1 text-center md:text-left">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Connect your Google Calendar</h3>
                 <p className="text-gray-600">
-                  Securely link your Google Calendar account with our bot using OAuth authentication. Your data stays
+                  Securely link your Google Calendar account with the bot using OAuth authentication. Your data stays
                   private and secure.
                 </p>
               </div>
@@ -141,10 +139,9 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Send natural messages</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Send a message</h3>
                 <p className="text-gray-600">
-                  Type your events naturally in Telegram: "Lunch with Sarah next Friday at noon" or "Team standup every
-                  Monday at 9am".
+                  Type information about your event in Telegram: "Lunch with Sarah next Friday at noon" or send an image containing a handwritten note or image flier. 
                 </p>
               </div>
             </div>
@@ -180,7 +177,7 @@ export default function LandingPage() {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Time-saving automation</h3>
                 <p className="text-gray-600">
-                  No more manual calendar entry. Save hours every week with intelligent event creation.
+                  No more manual calendar entry. Quick and easy!
                 </p>
               </div>
             </div>
@@ -205,15 +202,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4">
-              <CheckCircle className="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Always available</h3>
-                <p className="text-gray-600">
-                  Access your calendar assistant 24/7 directly from Telegram on any device.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -223,8 +211,7 @@ export default function LandingPage() {
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Ready to automate your calendar?</h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join thousands of users who have simplified their scheduling with CalendarBot. Get started in less than 2
-            minutes.
+            Get started in less than 2 minutes.
           </p>
 
           <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
