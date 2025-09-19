@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MessageCircle, Sparkles, Clock, Zap, Image, Shield, ArrowRight, Bot, CheckCircle } from "lucide-react"
+import { Calendar, MessageCircle, Sparkles, Image, ArrowRight, Bot } from "lucide-react"
+import Link from "next/link";
+
 
 export default function LandingPage() {
   return (
@@ -15,9 +17,11 @@ export default function LandingPage() {
             </div>
             <span className="text-xl font-semibold text-gray-900">CalendarBot</span>
           </div>
-          <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
-            Get Started
-          </Button>
+          <Link href="https://t.me/NaturalLanguageCalendarBot">
+            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
+              Get Started
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -38,14 +42,16 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Get started using CalendarBot
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-            <Button variant="outline" size="lg" className="px-8 bg-transparent">
+            <Link href="https://t.me/NaturalLanguageCalendarBot">
+              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Get started using CalendarBot
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+            {/* <Button variant="outline" size="lg" className="px-8 bg-transparent">
               Watch Demo
-            </Button>
+            </Button> */}
           </div>
 
           <div className="mt-12 text-sm text-gray-500">
@@ -159,11 +165,13 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl text-center">
-          <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
-            <MessageCircle className="w-5 h-5 mr-2" />
-            Get started using CalendarBot
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <Link href="https://t.me/NaturalLanguageCalendarBot">
+            <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Get started using CalendarBot
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </section>
 
