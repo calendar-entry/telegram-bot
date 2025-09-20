@@ -41,7 +41,7 @@ const generateAuthUrl = (telegramId) => {
   const state = String(telegramId); // or better: a random token stored in DB, then link them after verifying
   const url = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/calendar','https://www.googleapis.com/auth/calendar.events'],
+    scope: ['https://www.googleapis.com/auth/calendar.calendarlist.readonly','https://www.googleapis.com/auth/calendar.events'],
     prompt: 'consent', // ensure we get a refresh_token
     state: state,
     include_granted_scopes: true,

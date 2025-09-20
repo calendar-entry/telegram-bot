@@ -3,3 +3,5 @@ venv
 webhook/node_modules
 oauth/node_modules
 oldstuff/*
+.aws-sam/*
+
