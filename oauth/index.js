@@ -35,14 +35,50 @@ module.exports.handler = async (event) => {
     // In real code, verify that `state` is a valid session for that Telegram user
     const telegramId = state; // or look up a random token if used
 
+    // Try to fetch Telegram user info (username, first_name, last_name) so we can store it.
+    // This is optional — if TELEGRAM_BOT_TOKEN is not set or the API call fails, we'll still store tokens.
+    let tgUser = null;
+    try {
+      const https = require('https');
+      const token = process.env.TELEGRAM_BOT_TOKEN;
+      if (token) {
+        const url = `https://api.telegram.org/bot${token}/getChat?chat_id=${encodeURIComponent(telegramId)}`;
+        tgUser = await new Promise((resolve) => {
+          https.get(url, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => {
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed && parsed.ok) resolve(parsed.result);
+                else resolve(null);
+              } catch (e) { resolve(null); }
+            });
+          }).on('error', () => resolve(null));
+        });
+      }
+    } catch (e) {
+      // silently ignore fetch errors; we don't want to fail the OAuth flow due to logging
+      console.warn('Failed to fetch Telegram user info:', e && e.message ? e.message : e);
+      tgUser = null;
+    }
+
+    const item = {
+      id: telegramId,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      expiry_date: tokens.expiry_date,
+    };
+
+    if (tgUser) {
+      if (tgUser.username) item.username = tgUser.username;
+      if (tgUser.first_name) item.first_name = tgUser.first_name;
+      if (tgUser.last_name) item.last_name = tgUser.last_name;
+    }
+
     await dynamoDB.put({
       TableName: TABLE_NAME,
-      Item: {
-        id: telegramId,
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expiry_date: tokens.expiry_date,
-      }
+      Item: item
     }).promise();
 
     // 3. Redirect user back to a "success" page or just show a simple message

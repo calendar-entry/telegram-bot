@@ -3,7 +3,7 @@
 # Load environment variables from .env file
 source .env
 
-sam build --use-container
+# sam build --use-container
 
 # Deploy using SAM CLI with parameters
 sam deploy \

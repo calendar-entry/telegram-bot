@@ -7,17 +7,27 @@ const {
   getOAuthClient,
   fetchImageFromMessage,
   notifyDeniz,
+  logMessage,
+  deleteUserByTelegramId
   // selectCalendar
 } = require('./utils');
 const { openAIProcessText } = require('./openai-text');
 const { openAIProcessImage } = require('./openai-image');
 const env = process.env.ENVIRONMENT;
+const logmsg = false;
 
 module.exports.handler = async (event) => {
   try {
 
     const body = JSON.parse(event.body);
     const message = body.message ? body.message : null
+    if (logmsg) { // Log incoming Telegram message in a readable, safe way for CloudWatch
+      try {
+        logMessage(message);
+      } catch (logErr) {
+        console.warn('Failed to log incoming Telegram message:', logErr && logErr.stack ? logErr.stack : logErr);
+      }
+    }
 
     if (!message) {
       throw new Error(JSON.stringify({
@@ -31,10 +41,10 @@ module.exports.handler = async (event) => {
 
     if (env === 'prod' && !user) {
       const authUrl = generateAuthUrl(chatId);
-      await notifyDeniz("new user!")
+      await notifyDeniz(chatId, "new user!")
       await sendTelegramMessage(
         chatId,
-        `Hello! Please <a href="${authUrl.replace(/&/g, '&amp;')}"> connect your Google account</a> to get started.`
+        `Hello! Please <a href="${authUrl.replace(/&/g, '&amp;')}"> connect your Google account</a> to get started. You'll need to resubmit your last message after connecting. We never keep information about your messages or events!`
       );
 
       return { statusCode: 200, body: "Auth link sent" };
@@ -50,13 +60,24 @@ module.exports.handler = async (event) => {
       var eventJSON = {
         parsed: false
       }
+      if (message.entities && message.entities.some(e => e.type === 'bot_command')) {
+        if (message.text === '/delete') {
+          await deleteUserByTelegramId(chatId);
+          await notifyDeniz(chatId, "deleted user")
+          await sendTelegramMessage(
+            chatId,
+            "Your user information has been successfully deleted, if you start chatting with calendarbot again, you will need to reauthenticate with Google. We never keep information about your messages or events!"
+          )
+          return { statusCode: 200, body: "User deleted" };
 
-      if (message.photo) {
+        }
+      }
+      else if (message.photo) {
         const base64Image = await fetchImageFromMessage(message.photo)
-        await notifyDeniz("got an image")
+        await notifyDeniz(chatId, "got an image")
         eventJSON = await openAIProcessImage(base64Image)
       } else if (message.text) {
-        await notifyDeniz(message.text)
+        await notifyDeniz(chatId, message.text)
         eventJSON = await openAIProcessText(message.text)
       }
 
@@ -85,7 +106,7 @@ module.exports.handler = async (event) => {
           "Sorry, I wasn't able to create an event based on your input."
         );
         if (message.text) (
-          await notifyDeniz(`parse error: ${message.text}`)
+          await notifyDeniz(chatId, `parse error: ${message.text}`)
         )
       }
 
@@ -119,7 +140,7 @@ module.exports.handler = async (event) => {
       stack: error.stack,
       error: error
     });
-    await notifyDeniz(`emitted error: ${errorMessage}`);
+    await notifyDeniz(chatId, `emitted error: ${errorMessage}`);
     return { statusCode: 200, body: "Error" };
   }
 };
