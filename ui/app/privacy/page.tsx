@@ -8,36 +8,45 @@ export const metadata = {
 }
 
 export default function Privacy() {
-    return (
-        <div className="min-h-screen bg-white">
-            {/* Header */}
-            <header className="border-b border-gray-100">
-                <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-                            <Bot className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-xl font-semibold text-gray-900">CalendarBot</span>
-                    </div>
-                    <Link href="https://t.me/NaturalLanguageCalendarBot">
-                        <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
-                            Get Started
-                        </Button>
-                    </Link>
-                </div>
-            </header>
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="border-b border-gray-100">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-semibold text-gray-900">CalendarBot</span>
+          </div>
+          <Link href="https://t.me/NaturalLanguageCalendarBot">
+            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
+              Get Started
+            </Button>
+          </Link>
+        </div>
+      </header>
 
-            
-            <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
 
-        
+        <section className="mb-8">
+          <h3 className="font-semibold mt-4">Last updated: September 22nd 2025
+            <p/>Applies to: “Telegram Calendar Bot”</h3>
+        </section>
+
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-3">Who we are</h2>
           <ul className="list-disc ml-6 mt-2 text-gray-700">
-            <li> Operator/Publisher: [ADD YOUR PUBLIC OPERATOR/BRAND NAME] </li>
+            <li> Operator/Publisher: Telegram Calendar Bot </li>
             <li> Website: https://telegramcalendarbot.com/ </li>
-            <li> Privacy contact: [ADD SUPPORT EMAIL, e.g., privacy@[your-domain]] </li>
+            <li> Privacy contact: takvimbot@gmail.com </li>
+          </ul>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-3">What this policy covers</h2>
+          <ul className="list-disc ml-6 mt-2 text-gray-700">
+            <li> This policy explains what personal data the Bot processes, why we process it, how we store and share it, and the choices you have. It also includes the disclosures required for apps that access Google user data via OAuth. </li>
           </ul>
         </section>
 
@@ -66,10 +75,10 @@ export default function Privacy() {
 
           <h3 className="font-semibold mt-4">Technical/ops data</h3>
           <ul className="list-disc ml-6 mt-2 text-gray-700">
-            <li>Non‑PII operational logs and metrics (e.g., timestamps, status/error codes) used for reliability and abuse prevention. You stated you do not log user IDs or chat IDs.</li>
+            <li>Non‑PII operational logs and metrics (e.g., timestamps, status/error codes) used for reliability and abuse prevention. We do not log user IDs or chat IDs.</li>
           </ul>
 
-          <p className="mt-4 text-gray-700">We do not sell personal data and do not use Google user data for ads or ad targeting. We follow Google’s API Services User Data Policy and Limited Use requirements (use only for user‑facing features; no unauthorized transfers; no human reading except the narrow cases allowed).</p>
+          <p className="mt-4 text-gray-700">We do not sell personal data and do not use Google user data for ads or ad targeting. We follow Google’s API Services User Data Policy and Limited Use requirements.</p>
         </section>
 
         <section className="mb-8">
@@ -84,7 +93,7 @@ export default function Privacy() {
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-3">AI processing (natural language &amp; images)</h2>
-          <p className="text-gray-700">To interpret your instructions (and optional images you send), we call OpenAI. We send only the minimum text/image content needed to parse your request into event details.</p>
+          <p className="text-gray-700">To interpret your instructions (and optional images you send), we call OpenAI. We send only the minimum text/image content needed to parse your request into event details. We do not send OpenAI any details about our users, and do not identify user in request.</p>
           <ul className="list-disc ml-6 mt-2 text-gray-700">
             <li>Provider: OpenAI API.</li>
             <li>Model training: Per OpenAI’s policy, API inputs/outputs are not used to train models by default; opting‑in is required. We do not opt in.</li>
@@ -111,17 +120,16 @@ export default function Privacy() {
           <ul className="list-disc ml-6 mt-2 text-gray-700">
             <li>Refresh tokens: retained until revoked.</li>
             <li>Parsed event text / raw messages / images: not retained after processing.</li>
-            <li>Operational logs: non‑PII only; retained for routine operations ([ADD RETENTION WINDOW, e.g., 30–90 days]).</li>
+            <li>Operational logs: non‑PII only; retained for routine operations for two weeks.</li>
           </ul>
-          <p className="mt-3 text-gray-700">Backups (if any) follow rolling deletion; deleted items may persist only until backup rotation completes.</p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-3">Your choices &amp; controls</h2>
           <ul className="list-disc ml-6 mt-2 text-gray-700">
             <li>Revoke Google access any time: In your Google Account → Security → Third‑party access, remove the app; this invalidates our tokens.</li>
-            <li>Delete your data with us: Send the Telegram command <code className="bg-gray-100 p-1 rounded">/delete</code>. We will delete your stored refresh token and any user‑level preferences, and deactivate your access.</li>
-            <li>Contact: You can also email <a href="mailto:privacy@[your-domain]" className="text-emerald-600">privacy@[your-domain]</a> for privacy requests.</li>
+            <li>Delete your data with us: Send the Telegram command <code className="bg-gray-100 p-1 rounded">/delete</code>. We will delete your stored refresh token and any user‑level preferences, and deactivate your access. Telegram will retain your chat history, but we will not have access to it.</li>
+            <li>Contact: You can also email <a href="takvimbot@gmail.com" className="text-emerald-600">takvimbot@gmail.com</a> for privacy requests.</li>
           </ul>
         </section>
 
@@ -147,8 +155,8 @@ export default function Privacy() {
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-3">Contact</h2>
-          <p className="text-gray-700">privacy@[your-domain]<br />
-          https://[your-domain]/</p>
+          <p className="text-gray-700"><a href="takvimbot@gmail.com" className="text-emerald-600">takvimbot@gmail.com</a><br />
+            <a href="https://telegramcalendarbot.com/" className="text-emerald-600">https://telegramcalendarbot.com</a></p>
         </section>
 
       </div>
