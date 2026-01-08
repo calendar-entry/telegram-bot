@@ -126,6 +126,8 @@ module.exports.handler = async (event) => {
             requestBody: {
               start: { dateTime: event.start.dateTime, timeZone: 'America/Los_Angeles' },
               end: { dateTime: event.end.dateTime, timeZone: 'America/Los_Angeles' },
+              ...(event.location ? { location: event.location } : {}),
+              ...(event.description ? { description: event.description } : {}),
               summary: event.summary
             }
           });
