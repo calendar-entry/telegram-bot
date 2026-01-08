@@ -8,7 +8,8 @@ const {
   fetchImageFromMessage,
   notifyDeniz,
   logMessage,
-  deleteUserByTelegramId
+  deleteUserByTelegramId,
+  updateTokensByTelegramId
   // selectCalendar
 } = require('./utils');
 const { openAIProcessText } = require('./openai-text');
@@ -53,7 +54,33 @@ module.exports.handler = async (event) => {
     const oAuth2Client = getOAuthClient();
     oAuth2Client.setCredentials({
       access_token: user.access_token,
-      refresh_token: user.refresh_token
+      refresh_token: user.refresh_token,
+      expiry_date: user.expiry_date
+    });
+    let tokenUpdatePromise = null;
+    const finalize = async (payload) => {
+      if (tokenUpdatePromise) {
+        await tokenUpdatePromise;
+      }
+      return payload;
+    };
+
+    // Persist refreshed tokens so we don't keep using stale credentials
+    oAuth2Client.on('tokens', (tokens) => {
+      if (!tokens) return;
+      const payload = {
+        access_token: tokens.access_token || user.access_token,
+        expiry_date: tokens.expiry_date || user.expiry_date
+      };
+      if (tokens.refresh_token) {
+        payload.refresh_token = tokens.refresh_token;
+        user.refresh_token = tokens.refresh_token;
+      }
+      if (tokens.access_token) user.access_token = tokens.access_token;
+      if (tokens.expiry_date) user.expiry_date = tokens.expiry_date;
+      tokenUpdatePromise = updateTokensByTelegramId(chatId, payload).catch((err) => {
+        console.error('Failed to persist refreshed tokens:', err && err.stack ? err.stack : err);
+      });
     });
 
     try {
@@ -62,16 +89,16 @@ module.exports.handler = async (event) => {
       }
       if (message.entities && message.entities.some(e => e.type === 'bot_command')) {
         if (message.text === '/delete') {
-          await deleteUserByTelegramId(chatId);
-          await notifyDeniz(chatId, "deleted user")
-          await sendTelegramMessage(
-            chatId,
-            "Your user information has been successfully deleted, if you start chatting with calendarbot again, you will need to reauthenticate with Google. We never keep information about your messages or events!"
-          )
-          return { statusCode: 200, body: "User deleted" };
+              await deleteUserByTelegramId(chatId);
+              await notifyDeniz(chatId, "deleted user")
+              await sendTelegramMessage(
+                chatId,
+                "Your user information has been successfully deleted, if you start chatting with calendarbot again, you will need to reauthenticate with Google. We never keep information about your messages or events!"
+              )
+              return finalize({ statusCode: 200, body: "User deleted" });
 
-        }
-      }
+            }
+          }
       else if (message.photo) {
         const base64Image = await fetchImageFromMessage(message.photo)
         await notifyDeniz(chatId, "got an image")
@@ -110,7 +137,7 @@ module.exports.handler = async (event) => {
         )
       }
 
-      return { statusCode: 200, body: "OK" };
+      return finalize({ statusCode: 200, body: "OK" });
 
     } catch (error) {
       if (error?.response?.data?.error === 'invalid_grant') {
@@ -120,7 +147,7 @@ module.exports.handler = async (event) => {
           `Oh no- it looks like we need to <a href="${authUrl.replace(/&/g, '&amp;')}"> reconnect your Google account</a> to continue.`
         );
 
-        return { statusCode: 200, body: "Auth link sent" };
+        return finalize({ statusCode: 200, body: "Auth link sent" });
       }
       else {
         await sendTelegramMessage(

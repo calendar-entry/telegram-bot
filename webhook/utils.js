@@ -49,6 +49,27 @@ const deleteUserByTelegramId = async (telegramId) => {
   return result.Attributes || null;
 }
 
+const updateTokensByTelegramId = async (telegramId, tokens) => {
+  // Persist new tokens/expirations after Google refreshes them
+  const setParts = ['access_token = :a', 'expiry_date = :e'];
+  const values = {
+    ':a': tokens.access_token,
+    ':e': tokens.expiry_date || null
+  };
+
+  if (tokens.refresh_token) {
+    setParts.push('refresh_token = :r');
+    values[':r'] = tokens.refresh_token;
+  }
+
+  await dynamoDB.update({
+    TableName: TABLE_NAME,
+    Key: { id: String(telegramId) },
+    UpdateExpression: `SET ${setParts.join(', ')}`,
+    ExpressionAttributeValues: values
+  }).promise();
+}
+
 const generateAuthUrl = (telegramId) => {
   const oAuth2Client = getOAuthClient();
   const state = String(telegramId); // or better: a random token stored in DB, then link them after verifying
@@ -165,5 +186,6 @@ module.exports = {
   notifyDeniz,
   selectCalendar,
   logMessage,
-  deleteUserByTelegramId
+  deleteUserByTelegramId,
+  updateTokensByTelegramId
 };
