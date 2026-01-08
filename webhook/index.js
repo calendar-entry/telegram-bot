@@ -20,8 +20,17 @@ const logmsg = false;
 module.exports.handler = async (event) => {
   try {
 
-    const body = JSON.parse(event.body);
-    const message = body.message ? body.message : null
+    const body = JSON.parse(event.body || '{}');
+    const message = body.message ? body.message : null;
+    const testMode = body?.test === true || body?.test === 'true';
+
+    if (testMode) {
+      if (!message?.text) {
+        return { statusCode: 400, body: JSON.stringify({ error: "Test mode requires message.text" }) };
+      }
+      const eventJSON = await openAIProcessText(message.text);
+      return { statusCode: 200, body: JSON.stringify(eventJSON) };
+    }
     if (logmsg) { // Log incoming Telegram message in a readable, safe way for CloudWatch
       try {
         logMessage(message);
