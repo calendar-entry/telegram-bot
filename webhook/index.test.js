@@ -5,7 +5,8 @@ jest.mock('googleapis', () => ({
   google: {
     calendar: jest.fn().mockReturnValue({
       events: {
-        insert: jest.fn().mockResolvedValue({})
+        insert: jest.fn().mockResolvedValue({}),
+        list: jest.fn().mockResolvedValue({ data: { items: [] } })
       }
     })
   }
@@ -18,7 +19,8 @@ jest.mock('./utils', () => ({
   generateAuthUrl: jest.fn(),
   getOAuthClient: jest.fn(),
   fetchImageFromMessage: jest.fn(),
-  notifyDeniz: jest.fn()
+  notifyDeniz: jest.fn(),
+  updateTokensByTelegramId: jest.fn()
 }));
 
 // Mock OpenAI functions
@@ -52,7 +54,8 @@ describe('Webhook Handler', () => {
     
     // Setup default mock implementations
     getOAuthClient.mockReturnValue({
-      setCredentials: jest.fn()
+      setCredentials: jest.fn(),
+      on: jest.fn()
     });
 
     // Setup default Promise resolutions for async functions

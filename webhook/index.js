@@ -16,8 +16,56 @@ const { openAIProcessText } = require('./openai-text');
 const { openAIProcessImage } = require('./openai-image');
 const env = process.env.ENVIRONMENT;
 const logmsg = false;
+const DEFAULT_TIME_ZONE = 'America/Los_Angeles';
+
+const getTimeZoneOffsetMinutes = (date, timeZone) => {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  const parts = dtf.formatToParts(date);
+  const values = {};
+  parts.forEach((part) => {
+    values[part.type] = part.value;
+  });
+  const asUTC = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second)
+  );
+  return (asUTC - date.getTime()) / 60000;
+};
+
+const normalizeDateTime = (dateTime, timeZone) => {
+  if (!dateTime) return null;
+  if (/[zZ]|[+-]\d{2}:\d{2}$/.test(dateTime)) return dateTime;
+  const match = dateTime.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!match) return null;
+  const [, year, month, day, hour, minute, second] = match;
+  const assumedUTC = new Date(Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+    Number(second || 0)
+  ));
+  const offsetMinutes = getTimeZoneOffsetMinutes(assumedUTC, timeZone);
+  const actualUTC = new Date(assumedUTC.getTime() - offsetMinutes * 60000);
+  return actualUTC.toISOString();
+};
 
 module.exports.handler = async (event) => {
+  let chatId = null;
   try {
 
     const body = JSON.parse(event.body || '{}');
@@ -45,7 +93,7 @@ module.exports.handler = async (event) => {
       }));
     }
 
-    const chatId = message.chat.id;
+    chatId = message.chat.id;
 
     let user = await getUserByTelegramId(chatId);
 
@@ -120,12 +168,33 @@ module.exports.handler = async (event) => {
       if (eventJSON.parsed) {
         const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
 
+        const conflictChecks = await Promise.all(eventJSON.events.map(async (event) => {
+          try {
+            const timeMin = normalizeDateTime(event.start?.dateTime, DEFAULT_TIME_ZONE);
+            const timeMax = normalizeDateTime(event.end?.dateTime, DEFAULT_TIME_ZONE);
+            if (!timeMin || !timeMax) {
+              throw new Error('Invalid or missing event times for conflict check');
+            }
+            const response = await calendar.events.list({
+              calendarId: 'primary',
+              timeMin,
+              timeMax,
+              singleEvents: true,
+              orderBy: 'startTime'
+            });
+            return { event, conflicts: response.data.items || [], error: null };
+          } catch (conflictError) {
+            console.error('Failed to check conflicts:', conflictError?.response?.data || conflictError?.stack || conflictError);
+            return { event, conflicts: [], error: conflictError };
+          }
+        }));
+
         await Promise.all(eventJSON.events.map(event => {
           return calendar.events.insert({
             calendarId: 'primary',
             requestBody: {
-              start: { dateTime: event.start.dateTime, timeZone: 'America/Los_Angeles' },
-              end: { dateTime: event.end.dateTime, timeZone: 'America/Los_Angeles' },
+              start: { dateTime: event.start.dateTime, timeZone: DEFAULT_TIME_ZONE },
+              end: { dateTime: event.end.dateTime, timeZone: DEFAULT_TIME_ZONE },
               ...(event.location ? { location: event.location } : {}),
               ...(event.description ? { description: event.description } : {}),
               summary: event.summary
@@ -137,6 +206,23 @@ module.exports.handler = async (event) => {
           chatId,
           eventJSON.report || "Event created on your Google Calendar!"
         );
+
+        const conflictMessages = [];
+        conflictChecks.forEach(({ event, conflicts, error }) => {
+          if (error) {
+            conflictMessages.push(`I couldn't check for conflicts with "${event.summary || 'Untitled event'}".`);
+            return;
+          }
+          if (!conflicts.length) return;
+          conflictMessages.push(`This event conflicts with another event(s) on your calendar:"${event.summary || 'Untitled event'}":`);
+          conflicts.forEach((conflict) => {
+            conflictMessages.push(`- ${conflict.summary || 'Untitled event'}`);
+          });
+        });
+
+        if (conflictMessages.length) {
+          await sendTelegramMessage(chatId, conflictMessages.join('\n'));
+        }
 
       } else {
         await sendTelegramMessage(

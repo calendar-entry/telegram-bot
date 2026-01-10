@@ -11,22 +11,38 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
 const sendTelegramMessage = async (chatId, text) => {
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-  await axios.post(url, {
-    chat_id: chatId,
-    text: text,
-    parse_mode: 'HTML'
-  });
+  try {
+    await axios.post(url, {
+      chat_id: chatId,
+      text: text,
+      parse_mode: 'HTML'
+    });
+  } catch (error) {
+    console.error('Failed to send Telegram message:', {
+      chatId,
+      error: error?.response?.data || error?.message || error
+    });
+    throw error;
+  }
 }
 
 const notifyDeniz = async (chatId,text) => {
   const url = `https://api.telegram.org/bot${DENIZ_BOT_TOKEN}/sendMessage`;
   // Include the originating chatId in the message for context when provided
   const bodyText = chatId ? `${chatId} — ${text}` : text;
-  await axios.post(url, {
-    chat_id: DENIZ_BOT_CHATID,
-    text: bodyText,
-    parse_mode: 'HTML'
-  });
+  try {
+    await axios.post(url, {
+      chat_id: DENIZ_BOT_CHATID,
+      text: bodyText,
+      parse_mode: 'HTML'
+    });
+  } catch (error) {
+    console.error('Failed to notify Deniz:', {
+      chatId,
+      error: error?.response?.data || error?.message || error
+    });
+    throw error;
+  }
 }
 
 const getUserByTelegramId = async (telegramId) => {
