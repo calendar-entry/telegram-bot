@@ -184,6 +184,10 @@ module.exports.handler = async (event) => {
             });
             return { event, conflicts: response.data.items || [], error: null };
           } catch (conflictError) {
+            if (conflictError?.response?.data?.error === 'invalid_grant' ||
+                conflictError?.response?.status === 401) {
+              throw conflictError;
+            }
             console.error('Failed to check conflicts:', conflictError?.response?.data || conflictError?.stack || conflictError);
             return { event, conflicts: [], error: conflictError };
           }
@@ -237,7 +241,8 @@ module.exports.handler = async (event) => {
       return finalize({ statusCode: 200, body: "OK" });
 
     } catch (error) {
-      if (error?.response?.data?.error === 'invalid_grant') {
+      if (error?.response?.data?.error === 'invalid_grant' ||
+          error?.response?.status === 401) {
         const authUrl = generateAuthUrl(chatId);
         await sendTelegramMessage(
           chatId,
